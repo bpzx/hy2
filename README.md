@@ -1,8 +1,8 @@
 # hy2
 Hysteria2 一键极速安装
+系统支持：Debian/Ubuntu/Alpine
 
 ### 安装
-测试环境：`Debian 12` + `V2rayN V7.9.3`，其他自测
 ```
 bash <(curl -sSL https://raw.githubusercontent.com/bpzx/hy2/main/install.sh)
 ```
