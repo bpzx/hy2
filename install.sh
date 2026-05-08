@@ -2,7 +2,8 @@
 set -eu
 
 SNI="epson.com.cn"
-HY2_PASSWORD="Ayna$(openssl rand -hex 6)"
+HY2_PASSWORD=""
+HY2_OBFS_PASSWORD=""
 CONFIG_DIR="/etc/hysteria"
 CONFIG_FILE="$CONFIG_DIR/config.yaml"
 CERT_FILE="$CONFIG_DIR/server.crt"
@@ -61,6 +62,11 @@ install_deps() {
   else
     apk add --no-cache bash curl openssl ca-certificates
   fi
+}
+
+generate_secrets() {
+  HY2_PASSWORD="${HY2_PASSWORD:-Ayna$(openssl rand -hex 6)}"
+  HY2_OBFS_PASSWORD="${HY2_OBFS_PASSWORD:-Obfs$(openssl rand -hex 12)}"
 }
 
 detect_arch() {
@@ -184,6 +190,11 @@ auth:
   type: password
   password: $HY2_PASSWORD
 
+obfs:
+  type: salamander
+  salamander:
+    password: $HY2_OBFS_PASSWORD
+
 masquerade:
   type: proxy
   proxy:
@@ -263,13 +274,14 @@ get_hy2_url() {
   local port ip
 
   port="$(get_port)"
+  generate_secrets
   install_hy2
   gen_ssl
   configure_hy2 "$port"
   start_hy2
   ip="$(get_local_ip)"
 
-  log "hysteria2://${HY2_PASSWORD}@${ip}:${port}?sni=${SNI}&insecure=1#hy2_by_Anya"
+  log "hysteria2://${HY2_PASSWORD}@${ip}:${port}/?sni=${SNI}&insecure=1&obfs=salamander&obfs-password=${HY2_OBFS_PASSWORD}#hy2_by_Anya"
   echo "--> 项目地址：https://github.com/bpzx/hy2"
 }
 
